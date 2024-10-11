@@ -1,0 +1,143 @@
+#Create accounts and store progress
+#make a HP counter thing using the tutle package
+#make a speed mechanic
+#make them miss atk
+#add attack dialogue in dictionary
+import random
+import turtle
+import time
+BREAK_CHANCE = [3,4,5,6]
+TURN = 0
+
+#To print letter by letter
+def print_letter_by_letter(sentence):
+    for char in sentence:
+        print(char, end='', flush=True)
+        time.sleep(0.05)
+    print()
+
+#Fight counter
+def start_fight():
+    for i in [3, 2, 1, "FIGHT!"]:
+        print(i)
+        time.sleep(1)
+
+#To display the player and enemy HP, stamina after each turn
+def status(player_stats, enemy_stats):
+    print(f"You have {player_stats['HP']} HP left")
+    print(f"You have {player_stats['stamina']} stamina left")
+    print(f"{enemy_stats['name']} has {enemy_stats['HP']} HP left")
+
+#Guide for new players
+def guide(player_stats, attacks):
+    print(f"You have {player_stats['HP']} base health points.\nIf you run out of health you lose.")
+    print("You have the following types of attacks: ")
+    for attack, details in attacks.items():
+        print(f"{attack.capitalize()}: {details['damage']} damage, costs {details['cost']} stamina")
+    print("Press (1) To stab, (2) To strike, (3) To unleash a barrage and (4) To parry incoming attack")
+    print("If you are out of stamina, you will be unable to fight and automatically lose")
+
+#Starting screen
+def intro():
+    while True:
+        user_input = input("Type 'guide' to know how to play the game, or 'play' to start the game: ").lower()
+        if user_input == "guide":
+            guide(player_stats, attacks)
+        elif user_input == "play":
+            fight_1v1(player_stats,enemy_stats,TURN)
+        else:
+            print("Invalid input. Please type 'guide' or 'play'.")
+            continue
+
+# Parameters for the fight against Bazuso
+turn = 0
+player_stats = {"HP": 150, "stamina": 100, "name": ''}
+enemy_stats = {"HP": 250, "name": "Bazuso", "attacks": [60, 50, 40]}
+attacks = {'stab': {"damage": 20, "cost": 10, 'dialogue' : f"You slashed {enemy_stats['name']}."}, 'strike': {"damage": 40, "cost": 20, "dialogue": f"You struck {enemy_stats['name']}."},
+           'barrage': {"damage": 100, "cost": 50, "dialogue": f"You unleashed a barrage of attacks on {enemy_stats['name']}"}, 'parry': {"damage": 5, "cost": 30, "dialogue": f"You parried {enemy_stats['name']} and took no damage."}}
+f_context = "Warrior Bazuso is holding back the mercenaries, you go in the front and challenge Bazuso to a fight."
+dialogue = "Heh! How cowardly of you mercenaries to send a child onto the battlefield."
+victory_messages = [
+    "*CLANK*",
+    "Bazuso's axe shattered and he is unable to fight",
+    "You kill Bazuso. All the mercenaries rush to the castle"]
+
+def fight_1v1(player_stats,enemy_stats,TURN):
+    attack_name = ''
+    print_letter_by_letter(f_context)
+    time.sleep(2)
+    print_letter_by_letter(dialogue)
+    time.sleep(1)
+    start_fight()
+    random_attack = random.choice(enemy_stats["attacks"])
+    break1 = BREAK_CHANCE
+    status(player_stats, enemy_stats)
+    while True :
+        TURN += 1
+        if (player_stats['HP'] <= 0 or player_stats['stamina'] <= 0):
+            print("You are unable to battle and lost the fight.")
+            break
+        elif (enemy_stats['HP'] <= 0):
+            print(f"You defeated {enemy_stats['name']}")
+            break
+        else:
+            try:
+                choice=int(input("Press (1) To stab, (2) To strike, (3) To unleash a barrage and (4) To parry incoming attack : "))
+                if choice in [1, 2, 3, 4]:
+                    attack_name = list(attacks.keys())[choice - 1]  #attack_name is a string not a list.
+                    if player_stats["stamina"] < attacks[attack_name]["cost"]:
+                        print("Not enough stamina for this attack.")
+                        continue
+                    elif choice == 1:
+                        print(attacks[attack_name]['dialogue'])
+                        print(f"{enemy_stats['name']} responded with an attack.")
+                        while True:
+                           player_stats['HP'] -= random_attack
+                           status(player_stats, enemy_stats)
+                           break
+                    elif choice == 2:
+                        print(attacks[attack_name]['dialogue'])
+                        print(f"{enemy_stats['name']} responded with an attack.")
+                        while True:
+                            player_stats['HP'] -= random_attack
+                            status(player_stats, enemy_stats)
+                            break
+                    elif choice == 3:
+                        print(attacks[attack_name]['dialogue'])
+                        print(f"{enemy_stats['name']} responded with an attack.")
+                        while True:
+                            player_stats['HP'] -= random_attack
+                            status(player_stats, enemy_stats)
+                            break
+                    elif choice == 4:
+                        if break1 == BREAK_CHANCE:
+                            print(f"{enemy_stats['name']} broke through your defence.")
+                            while True:
+                                random_attack = 30
+                                player_stats['HP'] -= random_attack
+                                status(player_stats, enemy_stats)
+                                break
+                        else:
+                            print(attacks[attack_name]['dialogue'])
+                            print(f"{enemy_stats['name']} seems to be getting angry.")
+                            while True:
+                                random_attack = 0
+                                player_stats['HP'] -= random_attack
+                                status(player_stats, enemy_stats)
+                                break
+                    else:
+                        print("Invalid choice, try again.")
+                        continue
+            except ValueError:
+                print("Please enter a number.")
+
+            move = attacks[attack_name]['damage']
+            player_stats["stamina"] -= attacks[attack_name]['cost']
+            enemy_stats["HP"] -= move
+            #(attacks[attack_name]) is like the key of a key of a dictionary and using this key you're accessing
+            #the damage of the attack.
+
+def main():
+    intro()
+    fight_1v1(player_stats,enemy_stats)
+main()
